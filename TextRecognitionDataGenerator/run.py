@@ -269,6 +269,14 @@ def parse_arguments():
         nargs="?",
         help="Generate upper or lowercase only. arguments: upper or lower. Example: --case upper"
     )
+    # added by Me
+    parser.add_argument(
+        "-ov",
+        "--overlapping",
+        action="store_true",
+        help="Is overlapping or not",
+        default=True,
+    )
     return parser.parse_args()
 
 
@@ -383,7 +391,8 @@ def main():
                 [args.orientation] * string_count,
                 [args.space_width] * string_count,
                 [args.margins] * string_count,
-                [args.fit] * string_count
+                [args.fit] * string_count,
+                [args.overlapping] * string_count
             )
     ), total=args.count):
         pass

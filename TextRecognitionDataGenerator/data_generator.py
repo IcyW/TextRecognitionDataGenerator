@@ -7,7 +7,6 @@ import computer_text_generator
 import background_generator
 import distorsion_generator
 
-
 IS_RESIZE = False  # added by Me
 
 try:
@@ -28,7 +27,7 @@ class FakeTextDataGenerator(object):
     @classmethod
     def generate(cls, index, text, font, out_dir, size, extension, skewing_angle, random_skew, blur, random_blur,
                  background_type, distorsion_type, distorsion_orientation, is_handwritten, name_format, width,
-                 alignment, text_color, orientation, space_width, margins, fit):
+                 alignment, text_color, orientation, space_width, margins, fit, is_overlap):
         image = None
 
         margin_top, margin_left, margin_bottom, margin_right = margins
@@ -38,10 +37,15 @@ class FakeTextDataGenerator(object):
         ##########################
         # Create picture of text #
         ##########################
-        if is_handwritten:
-            if orientation == 1:
-                raise ValueError("Vertical handwritten text is unavailable")
-            image = handwritten_text_generator.generate(text, text_color, fit)
+        # if is_handwritten:
+        #     if orientation == 1:
+        #         raise ValueError("Vertical handwritten text is unavailable")
+        #     image = handwritten_text_generator.generate(text, text_color, fit)
+        # else:
+        #     image = computer_text_generator.generate(text, font, text_color, size, orientation, space_width, fit)
+        if is_overlap:
+            image = computer_text_generator.generate_overlap(text, font, text_color, size, orientation, space_width,
+                                                             fit)
         else:
             image = computer_text_generator.generate(text, font, text_color, size, orientation, space_width, fit)
 
