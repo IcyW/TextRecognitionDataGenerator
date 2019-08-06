@@ -2,6 +2,9 @@ import random as rnd
 
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 
+IS_SQUARE = True  # added by Me
+
+
 def generate(text, font, text_color, font_size, orientation, space_width, fit):
     if orientation == 0:
         return _generate_horizontal_text(text, font, text_color, font_size, space_width, fit)
@@ -10,16 +13,21 @@ def generate(text, font, text_color, font_size, orientation, space_width, fit):
     else:
         raise ValueError("Unknown orientation " + str(orientation))
 
+
 def _generate_horizontal_text(text, font, text_color, font_size, space_width, fit):
     image_font = ImageFont.truetype(font=font, size=font_size)
     words = text.split(' ')
     space_width = image_font.getsize(' ')[0] * space_width
 
     words_width = [image_font.getsize(w)[0] for w in words]
-    text_width =  sum(words_width) + int(space_width) * (len(words) - 1)
+    text_width = sum(words_width) + int(space_width) * (len(words) - 1)
     text_height = max([image_font.getsize(w)[1] for w in words])
+    print("text_width, text_height:", text_width, text_height)
 
-    txt_img = Image.new('RGBA', (text_width, text_height), (0, 0, 0, 0))
+    if IS_SQUARE:
+        txt_img = Image.new('RGBA', (300, 300), (0, 0, 0, 0))
+    else:
+        txt_img = Image.new('RGBA', (text_width, text_height), (0, 0, 0, 0))
 
     txt_draw = ImageDraw.Draw(txt_img)
 
@@ -35,14 +43,16 @@ def _generate_horizontal_text(text, font, text_color, font_size, space_width, fi
     for i, w in enumerate(words):
         txt_draw.text((sum(words_width[0:i]) + i * int(space_width), 0), w, fill=fill, font=image_font)
 
-    if fit:
-        return txt_img.crop(txt_img.getbbox())
-    else:
+    if IS_SQUARE or not fit:
         return txt_img
+    else:
+        if fit:
+            return txt_img.crop(txt_img.getbbox())
+
 
 def _generate_vertical_text(text, font, text_color, font_size, space_width, fit):
     image_font = ImageFont.truetype(font=font, size=font_size)
-    
+
     space_height = int(image_font.getsize(' ')[1] * space_width)
 
     char_heights = [image_font.getsize(c)[1] if c != ' ' else space_height for c in text]
