@@ -283,15 +283,28 @@ def load_dict(lang):
     return lang_dict
 
 
+def _get_file_suffix(file):
+    """
+
+    :param file: the path of the file
+    :return: suffix of the file (i.e ttf)
+    """
+    return os.path.splitext(file)[-1][1:].lower()
+
+
 def load_fonts(lang):
     """
         Load all fonts in the fonts directories
     """
-
-    if lang == 'cn':
-        return [os.path.join('fonts/cn', font) for font in os.listdir('fonts/cn')]
-    else:
-        return [os.path.join('fonts/latin', font) for font in os.listdir('fonts/latin')]
+    font_path = 'fonts/{}'.format(lang)
+    fonts_list = []
+    # if lang == 'cn':
+    for font in os.listdir(font_path):
+        if _get_file_suffix(font) == 'ttf':
+            fonts_list.append(os.path.join(font_path, font))
+    return fonts_list
+    # else:
+    #     return [os.path.join('fonts/latin', font) for font in os.listdir('fonts/latin')]
 
 
 def main():
@@ -330,7 +343,8 @@ def main():
         strings = create_strings_from_file(args.input_file, args.count)
     elif args.random_sequences:
         strings = create_strings_randomly(args.length, args.random, args.count,
-                                          args.include_letters, args.include_numbers, args.include_symbols, args.language)
+                                          args.include_letters, args.include_numbers, args.include_symbols,
+                                          args.language)
         # Set a name format compatible with special characters automatically if they are used
         if args.include_symbols or True not in (args.include_letters, args.include_numbers, args.include_symbols):
             args.name_format = 2
