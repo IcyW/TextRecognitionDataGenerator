@@ -6,6 +6,10 @@ from PIL import Image, ImageFilter
 import computer_text_generator
 import background_generator
 import distorsion_generator
+
+
+IS_RESIZE = False  # added by Me
+
 try:
     import handwritten_text_generator
 except ImportError as e:
@@ -22,7 +26,9 @@ class FakeTextDataGenerator(object):
         cls.generate(*t)
 
     @classmethod
-    def generate(cls, index, text, font, out_dir, size, extension, skewing_angle, random_skew, blur, random_blur, background_type, distorsion_type, distorsion_orientation, is_handwritten, name_format, width, alignment, text_color, orientation, space_width, margins, fit):
+    def generate(cls, index, text, font, out_dir, size, extension, skewing_angle, random_skew, blur, random_blur,
+                 background_type, distorsion_type, distorsion_orientation, is_handwritten, name_format, width,
+                 alignment, text_color, orientation, space_width, margins, fit):
         image = None
 
         margin_top, margin_left, margin_bottom, margin_right = margins
@@ -39,7 +45,7 @@ class FakeTextDataGenerator(object):
         else:
             image = computer_text_generator.generate(text, font, text_color, size, orientation, space_width, fit)
 
-        random_angle = rnd.randint(0-skewing_angle, skewing_angle)
+        random_angle = rnd.randint(0 - skewing_angle, skewing_angle)
 
         rotated_img = image.rotate(skewing_angle if not random_skew else random_angle, expand=1)
 
@@ -47,7 +53,7 @@ class FakeTextDataGenerator(object):
         # Apply distorsion to image #
         #############################
         if distorsion_type == 0:
-            distorted_img = rotated_img # Mind = blown
+            distorted_img = rotated_img  # Mind = blown
         elif distorsion_type == 1:
             distorted_img = distorsion_generator.sin(
                 rotated_img,
@@ -67,24 +73,32 @@ class FakeTextDataGenerator(object):
                 horizontal=(distorsion_orientation == 1 or distorsion_orientation == 2)
             )
 
-        ##################################
-        # Resize image to desired format #
-        ##################################
+        if IS_RESIZE:
+            ##################################
+            # Resize image to desired format #
+            ##################################
 
-        # Horizontal text
-        if orientation == 0:
-            new_width = int(distorted_img.size[0] * (float(size - vertical_margin) / float(distorted_img.size[1])))
-            resized_img = distorted_img.resize((new_width, size - vertical_margin), Image.ANTIALIAS)
-            background_width = width if width > 0 else new_width + horizontal_margin
-            background_height = size
-        # Vertical text
-        elif orientation == 1:
-            new_height = int(float(distorted_img.size[1]) * (float(size - horizontal_margin) / float(distorted_img.size[0])))
-            resized_img = distorted_img.resize((size - horizontal_margin, new_height), Image.ANTIALIAS)
-            background_width = size
-            background_height = new_height + vertical_margin
+            # Horizontal text
+            if orientation == 0:
+                new_width = int(distorted_img.size[0] * (float(size - vertical_margin) / float(distorted_img.size[1])))
+                resized_img = distorted_img.resize((new_width, size - vertical_margin), Image.ANTIALIAS)
+                background_width = width if width > 0 else new_width + horizontal_margin
+                background_height = size
+            # Vertical text
+            elif orientation == 1:
+                new_height = int(
+                    float(distorted_img.size[1]) * (float(size - horizontal_margin) / float(distorted_img.size[0])))
+                resized_img = distorted_img.resize((size - horizontal_margin, new_height), Image.ANTIALIAS)
+                background_width = size
+                background_height = new_height + vertical_margin
+            else:
+                raise ValueError("Invalid orientation")
+
+            the_img = resized_img
         else:
-            raise ValueError("Invalid orientation")
+            the_img = distorted_img
+            background_width = the_img.width
+            background_height = the_img.height
 
         #############################
         # Generate background image #
@@ -102,14 +116,14 @@ class FakeTextDataGenerator(object):
         # Place text with alignment #
         #############################
 
-        new_text_width, _ = resized_img.size
+        new_text_width, _ = the_img.size
 
         if alignment == 0 or width == -1:
-            background.paste(resized_img, (margin_left, margin_top), resized_img)
+            background.paste(the_img, (margin_left, margin_top), the_img)
         elif alignment == 1:
-            background.paste(resized_img, (int(background_width / 2 - new_text_width / 2), margin_top), resized_img)
+            background.paste(the_img, (int(background_width / 2 - new_text_width / 2), margin_top), the_img)
         else:
-            background.paste(resized_img, (background_width - new_text_width - margin_right, margin_top), resized_img)
+            background.paste(the_img, (background_width - new_text_width - margin_right, margin_top), the_img)
 
         ##################################
         # Apply gaussian blur #
@@ -129,7 +143,7 @@ class FakeTextDataGenerator(object):
         elif name_format == 1:
             image_name = '{}_{}.{}'.format(str(index), text, extension)
         elif name_format == 2:
-            image_name = '{}.{}'.format(str(index),extension)
+            image_name = '{}.{}'.format(str(index), extension)
         else:
             print('{} is not a valid name format. Using default.'.format(name_format))
             image_name = '{}_{}.{}'.format(text, str(index), extension)
