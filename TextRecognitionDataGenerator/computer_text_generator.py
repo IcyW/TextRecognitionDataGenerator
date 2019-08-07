@@ -3,7 +3,7 @@ import random as rnd
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 
 IS_SQUARE = True  # added by Me
-is_abnormal = False
+is_abnormal = True
 
 
 def generate(text, font, text_color, font_size, orientation, space_width, fit):
@@ -68,14 +68,15 @@ def generate_overlap(text, font, text_color, font_size, orientation, space_width
         x = sum(longer_words_width[0:i]) + i * int(space_width)
         txt_draw.text((x, y), w, fill=fill, font=image_font)
 
-    w_bias = random.randint(0, side - shorter_text_width)
+    w_bias = random.randint(0, longer_text_width - 10)
     if is_abnormal:
-        _y = y + random.randint(-text_height + 2, text_height - 2)
+        _y = y + random.randint(-text_height + 20, text_height - 15)
+        print(text, y, _y, text_height)
         for i, w in enumerate(shorter_words):
             _x = sum(shorter_words_width[0:i]) + w_bias + i * int(space_width)
             txt_draw.text((_x, _y), w, fill=fill, font=image_font)
     else:
-        _y = y + random.randint(text_height, text_height * 2)
+        _y = y + random.randint(text_height, text_height + 5)
         for i, w in enumerate(shorter_words):
             _x = sum(shorter_words_width[0:i]) + w_bias + i * int(space_width)
             txt_draw.text((_x, _y), w, fill=fill, font=image_font)
