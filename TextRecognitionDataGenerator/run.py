@@ -275,7 +275,7 @@ def parse_arguments():
         "--overlapping",
         action="store_true",
         help="Is overlapping or not",
-        default=True,
+        default=False,
     )
     return parser.parse_args()
 
