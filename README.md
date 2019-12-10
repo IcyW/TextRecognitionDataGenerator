@@ -169,17 +169,11 @@ Number of images generated per second.
     - `-t 4` : 2107 img/s
     - `-t 8` : 3297 img/s
 
-## Contributing
+## 生成我的训练样本
+`cd TextRecognitionDataGenerator`
 
-1. Create an issue describing the feature you'll be working on
-2. Code said feature
-3. Create a pull request
+### For normal samples
+`python run.py -w 4 -c 1000 -fi`
 
-## Feature request & issues
-
-If anything is missing, unclear, or simply not working, open an issue on the repository.
-
-## What is left to do?
-- Better background generation
-- Better handwritten text generation
-- More customization parameters (mostly regarding background)
+### For abnormal samples
+`python run.py -w 4 -c 1000 -fi -ov`
